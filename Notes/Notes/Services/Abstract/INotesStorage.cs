@@ -31,7 +31,7 @@ namespace Notes.Services.Abstract
         Task<Note> AddNoteAsync(string title, string content);
 
         /// <summary>
-        /// Найти заметку с указанным идентификатором и вернуть её. Падать если такой заметки нет.
+        /// Найти заметку с указанным идентификатором и вернуть её
         /// </summary>
         Task<Note> GetNoteByIdAsync(Guid id);
 

@@ -32,6 +32,7 @@ public partial class App : Application
         Di = ConfigureServices() // Вызов настройки зависимостей (метод внизу файла)
             .BuildServiceProvider(); // Служебный метод, надо запомнить
 
+        // Дай нам что-то, что реализует интерфейс INotesStorage
         INotesStorage notesStorage = Di.GetService<INotesStorage>();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

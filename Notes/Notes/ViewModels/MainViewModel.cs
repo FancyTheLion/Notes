@@ -1,5 +1,6 @@
 ﻿using Notes.Services.Abstract;
 using ReactiveUI;
+using System;
 using System.Reactive;
 using System.Threading.Tasks;
 
@@ -36,6 +37,11 @@ public class MainViewModel : ViewModelBase
     /// </summary>
     public ReactiveCommand<Unit, Unit> AddNoteCommand { get; set; }
 
+    /// <summary>
+    /// Список заметок
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> ListNotesCommand { get; set; }
+
     #endregion
 
     public MainViewModel
@@ -48,6 +54,7 @@ public class MainViewModel : ViewModelBase
         #region Связывание команд и методов
 
         AddNoteCommand = ReactiveCommand.CreateFromTask(OnAddNoteAsync);
+        ListNotesCommand = ReactiveCommand.CreateFromTask(OnListNotesAsync);
 
         #endregion
 
@@ -56,7 +63,7 @@ public class MainViewModel : ViewModelBase
 
     private void AddTextToConsole(string text)
     {
-        _consoleText += text + "\n";
+        ConsoleText += text + "\n";
     }
 
     /// <summary>
@@ -65,14 +72,27 @@ public class MainViewModel : ViewModelBase
     /// <returns></returns>
     private async Task OnAddNoteAsync()
     {
-        var addedNote = await _notesStorage.AddNoteAsync("Заголовок заметки 1", "Содержимое заметки 1");
+        await _notesStorage.AddNoteAsync("Заголовок заметки 1", "Содержимое заметки 1");
+    }
 
-        var noteInfo = @$"Заметка:
-ID: { addedNote.Id },
-Дата добавления: { addedNote.LastUpdateTime },
-Заголовок: { addedNote.Title },
-Содержимое: { addedNote.Content }";
+    /// <summary>
+    /// Асинхронный метод вывода списка заметок
+    /// </summary>
+    private async Task OnListNotesAsync()
+    {
+        var notes = await _notesStorage.GetOrderedNotesAsync();
 
-        AddTextToConsole(noteInfo);
+        AddTextToConsole("-----------------------------------------------------------------------------------");
+
+        // Перебираем заметки в коллекции заметок notes (это цикл)
+        foreach (var note in notes)
+        {
+            AddTextToConsole($@"ID: { note.Id },
+Время обновления: { note.LastUpdateTime },
+Заголовок: { note.Title },
+Содержимое: { note.Content }{ Environment.NewLine }");
+        }
+
+        AddTextToConsole("-----------------------------------------------------------------------------------");
     }
 }
