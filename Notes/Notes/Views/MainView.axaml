@@ -12,33 +12,107 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-	<StackPanel
-		Orientation="Vertical">
+	<UserControl.Styles>
+		<StyleInclude Source="/Styles/Common.axaml" />
+	</UserControl.Styles>
 
-		<TextBox
-			AcceptsReturn="True"
-			IsReadOnly="True"
-			HorizontalAlignment="Stretch"
-			VerticalAlignment="Stretch"
-			Height="500"
-			Text="{ Binding ConsoleText }">
-		</TextBox>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="300" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
 
-		<StackPanel
-			Orientation="Horizontal">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="200" />
+		</Grid.RowDefinitions>
 
-			<Button
-				Command="{ Binding AddNoteCommand }">
-				Добавить заметку
-			</Button>
+		<!-- Notes list an buttons -->
+		<Border
+			Grid.Column="0"
+			Grid.Row="0"
+			Classes="VisibleBorders">
 
-			<Button
-				Command="{ Binding ListNotesCommand }">
-				Показать список заметок
-			</Button>
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+				</Grid.ColumnDefinitions>
 
-		</StackPanel>
-		
-	</StackPanel>
-		
+				<Grid.RowDefinitions>
+					<RowDefinition Height="*" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+
+				<!-- Notes list -->
+				<Label
+					Grid.Column="0"
+					Grid.Row="0">
+					Тут будет список заметок
+				</Label>
+
+				<!--Buttons under notes list -->
+				<Grid
+					Grid.Column="0"
+					Grid.Row="1">
+					
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+
+					<Grid.RowDefinitions>
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
+
+					<Button
+						Command="{ Binding AddNoteCommand }"
+						Grid.Column="0"
+						Grid.Row="0"
+						HorizontalAlignment="Left">
+						Добавить
+					</Button>
+
+					<Button
+						Command="{ Binding ListNotesCommand }"
+						Grid.Column="2"
+						Grid.Row="0"
+						HorizontalAlignment="Right">
+						Показать
+					</Button>
+					
+				</Grid>
+				
+			</Grid>
+			
+		</Border>
+
+		<!-- Main part -->
+		<Border
+			Grid.Column="1"
+			Grid.Row="0"
+			Classes="VisibleBorders">
+
+			<Label>
+				Тут будет главная часть
+			</Label>
+			
+		</Border>
+
+		<!-- Console -->
+		<Border
+			Grid.Column="0"
+			Grid.ColumnSpan="2"
+			Grid.Row="1"
+			Classes="VisibleBorders">
+
+			<TextBox
+				AcceptsReturn="True"
+				IsReadOnly="True"
+				HorizontalAlignment="Stretch"
+				VerticalAlignment="Stretch"
+				Text="{ Binding ConsoleText }">
+			</TextBox>
+		</Border>
+	</Grid>
 </UserControl>

@@ -36,7 +36,7 @@ namespace Notes.Services.Abstract
         Task<Note> GetNoteByIdAsync(Guid id);
 
         /// <summary>
-        /// Найти заметку с указанным идентификатором и удалить её. Падать, если такой заметки нет.
+        /// Найти заметку с указанным идентификатором и удалить её.
         /// </summary>
         Task DeleteNoteByIdAsync(Guid id);
     }
