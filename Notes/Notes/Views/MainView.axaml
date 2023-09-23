@@ -90,7 +90,8 @@
 						Grid.ColumnSpan="3"
 						Grid.Row="0"
 						HorizontalAlignment="Stretch"
-						Watermark="Введите название заметки">
+						Watermark="Введите название заметки"
+						Text="{ Binding NewNoteTitle }">
 					</TextBox>
 
 					<Button

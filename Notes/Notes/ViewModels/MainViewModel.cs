@@ -46,6 +46,19 @@ public class MainViewModel : ViewModelBase
 
     #endregion
 
+    #region Название новой заметки
+
+    private string _newNoteTitle;
+
+    public string NewNoteTitle
+    {
+        get => _newNoteTitle;
+
+        set => this.RaiseAndSetIfChanged(ref _newNoteTitle, value);
+    }
+
+    #endregion
+
     #region Команды
 
     /// <summary>
@@ -85,7 +98,12 @@ public class MainViewModel : ViewModelBase
     /// <returns></returns>
     private async Task OnAddNoteAsync()
     {
-        await _notesStorage.AddNoteAsync("Заголовок заметки 1", "Содержимое заметки 1");
+        if (string.IsNullOrWhiteSpace(NewNoteTitle) == true)
+        {
+            return;
+        }
+
+        await _notesStorage.AddNoteAsync(NewNoteTitle, "Содержимое заметки 1");
 
         await LoadNotesFromStorageAsync();
     }
