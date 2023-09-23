@@ -18,7 +18,7 @@
 
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="300" />
+			<ColumnDefinition Width="400" />
 			<ColumnDefinition Width="*" />
 		</Grid.ColumnDefinitions>
 
@@ -47,7 +47,26 @@
 				<Label
 					Grid.Column="0"
 					Grid.Row="0">
-					Тут будет список заметок
+
+					<ListBox
+						ItemsSource="{ Binding Notes }"
+						HorizontalAlignment="Stretch">
+
+						<!-- Template how to draw one item -->
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<StackPanel
+									Orientation="Horizontal">
+									
+										<Label Content="{ Binding Title }" />
+										<Label Content="{ Binding LastUpdateTime }" />
+									
+								</StackPanel>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+
+					</ListBox>
+
 				</Label>
 
 				<!--Buttons under notes list -->
@@ -71,14 +90,6 @@
 						Grid.Row="0"
 						HorizontalAlignment="Left">
 						Добавить
-					</Button>
-
-					<Button
-						Command="{ Binding ListNotesCommand }"
-						Grid.Column="2"
-						Grid.Row="0"
-						HorizontalAlignment="Right">
-						Показать
 					</Button>
 					
 				</Grid>

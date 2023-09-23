@@ -1,6 +1,9 @@
-﻿using Notes.Services.Abstract;
+﻿using Avalonia.Collections;
+using Notes.Models;
+using Notes.Services.Abstract;
 using ReactiveUI;
 using System;
+using System.Collections.Generic;
 using System.Reactive;
 using System.Threading.Tasks;
 
@@ -30,17 +33,25 @@ public class MainViewModel : ViewModelBase
 
     #endregion
 
+    #region Список заметок (бинженый)
+
+    private AvaloniaList<Note> _notes = new AvaloniaList<Note>();
+
+    public AvaloniaList<Note> Notes
+    {
+        get => _notes;
+
+        set => this.RaiseAndSetIfChanged(ref _notes, value);
+    }
+
+    #endregion
+
     #region Команды
 
     /// <summary>
     /// Добавление заметки
     /// </summary>
     public ReactiveCommand<Unit, Unit> AddNoteCommand { get; set; }
-
-    /// <summary>
-    /// Список заметок
-    /// </summary>
-    public ReactiveCommand<Unit, Unit> ListNotesCommand { get; set; }
 
     #endregion
 
@@ -54,11 +65,13 @@ public class MainViewModel : ViewModelBase
         #region Связывание команд и методов
 
         AddNoteCommand = ReactiveCommand.CreateFromTask(OnAddNoteAsync);
-        ListNotesCommand = ReactiveCommand.CreateFromTask(OnListNotesAsync);
 
         #endregion
 
         ConsoleText = string.Empty;
+
+        // Тут мы загружаем заметки в момент старта программы
+        Task.Run(() => LoadNotesFromStorageAsync());
     }
 
     private void AddTextToConsole(string text)
@@ -73,26 +86,20 @@ public class MainViewModel : ViewModelBase
     private async Task OnAddNoteAsync()
     {
         await _notesStorage.AddNoteAsync("Заголовок заметки 1", "Содержимое заметки 1");
+
+        await LoadNotesFromStorageAsync();
     }
 
     /// <summary>
-    /// Асинхронный метод вывода списка заметок
+    /// Метод загружает заметки из хранилища и показывает их на экране
+    /// В случае асинхронных методов голый Task используется вместо void
+    /// Если нужно вернуть какое-то значение, например int, то используется Task<int>
     /// </summary>
-    private async Task OnListNotesAsync()
+    private async Task LoadNotesFromStorageAsync()
     {
-        var notes = await _notesStorage.GetOrderedNotesAsync();
+        Notes.Clear(); // Clear удаляет все элементы из коллекции
 
-        AddTextToConsole("-----------------------------------------------------------------------------------");
-
-        // Перебираем заметки в коллекции заметок notes (это цикл)
-        foreach (var note in notes)
-        {
-            AddTextToConsole($@"ID: { note.Id },
-Время обновления: { note.LastUpdateTime },
-Заголовок: { note.Title },
-Содержимое: { note.Content }{ Environment.NewLine }");
-        }
-
-        AddTextToConsole("-----------------------------------------------------------------------------------");
+        Notes.AddRange(await _notesStorage.GetOrderedNotesAsync()); // Добавляем в список Notes (он отображается на экране) заметки из
+        // хранилища при помощи AddRange(). AddRange() добавляет в одну коллекцию содержимое другой.
     }
 }
