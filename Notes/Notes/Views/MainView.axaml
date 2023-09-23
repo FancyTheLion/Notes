@@ -81,13 +81,22 @@
 					</Grid.ColumnDefinitions>
 
 					<Grid.RowDefinitions>
-						<RowDefinition Height="*" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
 					</Grid.RowDefinitions>
+
+					<TextBox
+						Grid.Column="0"
+						Grid.ColumnSpan="3"
+						Grid.Row="0"
+						HorizontalAlignment="Stretch"
+						Watermark="Введите название заметки">
+					</TextBox>
 
 					<Button
 						Command="{ Binding AddNoteCommand }"
 						Grid.Column="0"
-						Grid.Row="0"
+						Grid.Row="1"
 						HorizontalAlignment="Left">
 						Добавить
 					</Button>
