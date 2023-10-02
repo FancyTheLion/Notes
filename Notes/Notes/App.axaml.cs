@@ -64,8 +64,8 @@ public partial class App : Application
         // Синглтоны (это такие объекты, которые существуют в единственном экземпляре на всю программу)
         #region Синглтоны
 
-        services.AddSingleton<INotesStorage, InMemoryNotesStorage>(); // Ключевой момент - мы говорим "там, где программа
-        // хочет INotesStorage подсунуть ей InMemoryNotesStorage"
+        services.AddSingleton<INotesStorage, FileNotesStorage>(); // Ключевой момент - мы говорим "там, где программа
+        // хочет INotesStorage подсунуть ей FileNotesStorage"
 
         #endregion
 
