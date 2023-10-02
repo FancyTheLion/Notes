@@ -62,5 +62,13 @@ namespace Notes.Services.Implementations
                 .ToList()
                 .AsReadOnly();
         }
+
+        public async Task UpdateNoteContentAsync(Guid id, string content)
+        {
+            var note = await GetNoteByIdAsync(id);
+
+            note.Content = content;
+            note.LastUpdateTime = DateTime.UtcNow;
+        }
     }
 }

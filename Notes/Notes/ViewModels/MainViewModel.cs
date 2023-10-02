@@ -4,6 +4,7 @@ using Notes.Services.Abstract;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
 
@@ -17,19 +18,6 @@ public class MainViewModel : ViewModelBase
     /// Хранилище заметок (а какое именно - мы не знаем и знать не должны!)
     /// </summary>
     private INotesStorage _notesStorage;
-
-    #endregion
-
-    #region Текст на консоли
-
-    private string _consoleText;
-
-    public string ConsoleText
-    {
-        get => _consoleText;
-
-        set => this.RaiseAndSetIfChanged(ref _consoleText, value);
-    }
 
     #endregion
 
@@ -59,12 +47,52 @@ public class MainViewModel : ViewModelBase
 
     #endregion
 
+    #region Содержимое новой заметки
+
+    private string _currentNoteContent;
+
+    public string CurrentNoteContent
+    {
+        get => _currentNoteContent;
+
+        set => this.RaiseAndSetIfChanged(ref _currentNoteContent, value);
+    }
+
+    #endregion
+
+    #region Индекс выделенной заметки
+
+    private int _selectedNoteIndex;
+
+    public int SelectedNoteIndex
+    {
+        get => _selectedNoteIndex;
+
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _selectedNoteIndex, value);
+
+            if (value >= 0)
+            {
+                Task.WaitAll(ShowNoteAsync(Notes[value].Id));
+            }
+        }
+    }
+
+    #endregion
+
     #region Команды
 
     /// <summary>
     /// Добавление заметки
     /// </summary>
     public ReactiveCommand<Unit, Unit> AddNoteCommand { get; set; }
+    
+    /// <summary>
+    /// Сохранение заметки
+    /// </summary>
+    public ReactiveCommand<Unit, Unit> SaveNoteCommand { get; set; }
+
 
     #endregion
 
@@ -78,18 +106,14 @@ public class MainViewModel : ViewModelBase
         #region Связывание команд и методов
 
         AddNoteCommand = ReactiveCommand.CreateFromTask(OnAddNoteAsync);
+        SaveNoteCommand = ReactiveCommand.CreateFromTask(OnSaveNoteAsync);
 
         #endregion
 
-        ConsoleText = string.Empty;
+        CurrentNoteContent = "Выберите заметку";
 
         // Тут мы загружаем заметки в момент старта программы
         Task.Run(() => LoadNotesFromStorageAsync());
-    }
-
-    private void AddTextToConsole(string text)
-    {
-        ConsoleText += text + "\n";
     }
 
     /// <summary>
@@ -103,7 +127,9 @@ public class MainViewModel : ViewModelBase
             return;
         }
 
-        await _notesStorage.AddNoteAsync(NewNoteTitle, "Содержимое заметки 1");
+        await _notesStorage.AddNoteAsync(NewNoteTitle, string.Empty);
+
+        NewNoteTitle = string.Empty;
 
         await LoadNotesFromStorageAsync();
     }
@@ -119,5 +145,34 @@ public class MainViewModel : ViewModelBase
 
         Notes.AddRange(await _notesStorage.GetOrderedNotesAsync()); // Добавляем в список Notes (он отображается на экране) заметки из
         // хранилища при помощи AddRange(). AddRange() добавляет в одну коллекцию содержимое другой.
+    }
+
+    /// <summary>
+    /// Показать заметку в правой части окна программы, принимает ID заметки для показа
+    /// </summary>
+    private async Task ShowNoteAsync(Guid noteId)
+    {
+        var note = await _notesStorage.GetNoteByIdAsync(noteId);
+
+        CurrentNoteContent = note.Content;
+    }
+
+    /// <summary>
+    /// Сохранение заметки (асинхронный метод)
+    /// </summary>
+    /// <returns></returns>
+    private async Task OnSaveNoteAsync()
+    {
+        if (Notes.Any() == false)
+        {
+            return;
+        }
+
+        if (SelectedNoteIndex < 0)
+        {
+            return;
+        }
+
+        await _notesStorage.UpdateNoteContentAsync(Notes[SelectedNoteIndex].Id, CurrentNoteContent);
     }
 }

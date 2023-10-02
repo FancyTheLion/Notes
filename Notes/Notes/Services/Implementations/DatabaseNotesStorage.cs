@@ -29,5 +29,10 @@ namespace Notes.Services.Implementations
         {
             throw new NotImplementedException("Хранение заметок в базе данных ещё не реализовано");
         }
+
+        public async Task UpdateNoteContentAsync(Guid id, string content)
+        {
+            throw new NotImplementedException("Хранение заметок в базе данных ещё не реализовано");
+        }
     }
 }
