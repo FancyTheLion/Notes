@@ -93,6 +93,25 @@ namespace Notes.Services.Implementations
             SaveNotesToFile(notesList);
         }
 
+        /*        /// <summary>
+                /// Читать список заметок из файла
+                /// </summary>
+                private NotesList ReadNotesFromFile()
+                {
+                    if (!File.Exists(StorageFileName))
+                    {
+                        // Если файла не существует - возвращаем пустой список заметок
+                        return new NotesList()
+                        {
+                            Notes = new List<Note>()
+                        };
+                    }
+
+                    var jsonString = File.ReadAllText(StorageFileName);
+
+                    return JsonSerializer.Deserialize<NotesList>(jsonString);
+                }*/
+
         /// <summary>
         /// Читать список заметок из файла
         /// </summary>
@@ -107,10 +126,35 @@ namespace Notes.Services.Implementations
                 };
             }
 
-            var jsonString = File.ReadAllText(StorageFileName);
+            string jsonString;
+
+            using (var fileStream = File.Open(StorageFileName, FileMode.Open))
+            {
+                using (var memStream = new MemoryStream())
+                {
+                    fileStream.Seek(0, SeekOrigin.Begin);
+                    fileStream.CopyTo(memStream);
+                    fileStream.Flush();
+
+                    memStream.Seek(0, SeekOrigin.Begin);
+
+                    var streamReader = new StreamReader(memStream, new UnicodeEncoding());
+                    jsonString = streamReader.ReadToEnd();
+                }
+            }
 
             return JsonSerializer.Deserialize<NotesList>(jsonString);
         }
+
+        /*        /// <summary>
+                /// Сохранить список заметок в файл
+                /// </summary>
+                private void SaveNotesToFile(NotesList notesList)
+                {
+                    var jsonString = JsonSerializer.Serialize(notesList);
+
+                    File.WriteAllText(StorageFileName, jsonString);
+                }*/
 
         /// <summary>
         /// Сохранить список заметок в файл
@@ -119,7 +163,21 @@ namespace Notes.Services.Implementations
         {
             var jsonString = JsonSerializer.Serialize(notesList);
 
-            File.WriteAllText(StorageFileName, jsonString);
+            using (var memStream = new MemoryStream())
+            {
+                var streamWriter = new StreamWriter(memStream, new UnicodeEncoding());
+
+                streamWriter.Write(jsonString); // Здесь мы пишем строку в стрим
+                streamWriter.Flush(); // Сброс буфера
+
+                memStream.Seek(0, SeekOrigin.Begin); // Перемотать стриму на начало
+
+                using (var fileStream = File.Open(StorageFileName, FileMode.Create))
+                {
+                    memStream.CopyTo(fileStream);
+                    memStream.Flush();
+                }
+            }
         }
     }
 }
