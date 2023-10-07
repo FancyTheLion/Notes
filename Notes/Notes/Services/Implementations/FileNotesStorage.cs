@@ -3,6 +3,7 @@ using Notes.Services.Abstract;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
@@ -16,7 +17,7 @@ namespace Notes.Services.Implementations
         /// <summary>
         /// Читаем/сохраняем заметки в этот файл
         /// </summary>
-        private const string StorageFileName = "Notes.json";
+        private const string StorageFileName = "Notes.json.gz";
 
         public async Task<Note> AddNoteAsync(string title, string content)
         {
@@ -130,15 +131,9 @@ namespace Notes.Services.Implementations
 
             using (var fileStream = File.Open(StorageFileName, FileMode.Open))
             {
-                using (var memStream = new MemoryStream())
+                using (var decompressor = new GZipStream(fileStream, CompressionMode.Decompress))
                 {
-                    fileStream.Seek(0, SeekOrigin.Begin);
-                    fileStream.CopyTo(memStream);
-                    fileStream.Flush();
-
-                    memStream.Seek(0, SeekOrigin.Begin);
-
-                    var streamReader = new StreamReader(memStream, new UnicodeEncoding());
+                    var streamReader = new StreamReader(decompressor, new UnicodeEncoding());
                     jsonString = streamReader.ReadToEnd();
                 }
             }
@@ -163,19 +158,14 @@ namespace Notes.Services.Implementations
         {
             var jsonString = JsonSerializer.Serialize(notesList);
 
-            using (var memStream = new MemoryStream())
+            using (var fileStream = File.Open(StorageFileName, FileMode.Create))
             {
-                var streamWriter = new StreamWriter(memStream, new UnicodeEncoding());
-
-                streamWriter.Write(jsonString); // Здесь мы пишем строку в стрим
-                streamWriter.Flush(); // Сброс буфера
-
-                memStream.Seek(0, SeekOrigin.Begin); // Перемотать стриму на начало
-
-                using (var fileStream = File.Open(StorageFileName, FileMode.Create))
+                using (var compressor = new GZipStream(fileStream, CompressionLevel.SmallestSize))
                 {
-                    memStream.CopyTo(fileStream);
-                    memStream.Flush();
+                    var streamWriter = new StreamWriter(compressor, new UnicodeEncoding());
+
+                    streamWriter.Write(jsonString); // Здесь мы пишем строку в стрим
+                    streamWriter.Flush(); // Сброс буфера
                 }
             }
         }
