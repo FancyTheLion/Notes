@@ -2,8 +2,11 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using Notes.Mappers.Abstract;
+using Notes.Mappers.Implementations;
 using Notes.Services.Abstract;
 using Notes.Services.Implementations;
+using Notes.Services.Implementations.DAO;
 using Notes.ViewModels;
 using Notes.Views;
 using System;
@@ -64,8 +67,10 @@ public partial class App : Application
         // Синглтоны (это такие объекты, которые существуют в единственном экземпляре на всю программу)
         #region Синглтоны
 
-        services.AddSingleton<INotesStorage, FileNotesStorage>(); // Ключевой момент - мы говорим "там, где программа
-        // хочет INotesStorage подсунуть ей FileNotesStorage"
+        services.AddSingleton<INotesStorage, DatabaseNotesStorage>(); // Ключевой момент - мы говорим "там, где программа
+        // хочет INotesStorage подсунуть ей DatabaseNotesStorage"
+
+        services.AddSingleton<INotesMapper, NotesMapper>();
 
         #endregion
 
